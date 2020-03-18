@@ -1,4 +1,4 @@
-#!D:\Study\Projects\flask-todo\env\Scripts\python.exe
+#!d:\study\projects\flask-todo\env\scripts\python.exe
 # EASY-INSTALL-ENTRY-SCRIPT: 'autopep8==1.5','console_scripts','autopep8'
 __requires__ = 'autopep8==1.5'
 import re
