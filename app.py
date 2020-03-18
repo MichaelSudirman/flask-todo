@@ -21,12 +21,15 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db = SQLAlchemy(app)
 
 # Models
+
+
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     public_id = db.Column(db.String(50), unique=True)
     name = db.Column(db.String(50))
     password = db.Column(db.String(80))
     admin = db.Column(db.Boolean)
+
 
 class Todo(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -35,8 +38,10 @@ class Todo(db.Model):
     user_id = db.Column(db.Integer)
 
 # Decorator function
-def token_required(f):
-    @wraps(f)
+
+
+def token_required(func):
+    @wraps(func)
     def decorated(*args, **kwargs):
         token = None
 
@@ -45,19 +50,27 @@ def token_required(f):
 
         if not token:
             return jsonify({'error': 'Token is missing!'}), 401
-        try:
-            data = jwt.decode(token,app.config['SECRET_KEY'])
-            current_user = User.query.filter_by(public_id=data['public_id']).first()
-        except:
-            return jsonify({'emssage':'Token is invalid!'}), 401
 
-        return f(current_user, *args, **kwargs)
-    
+        try:
+            data = jwt.decode(token, app.config['SECRET_KEY'])
+            current_user = User.query.filter_by(
+                public_id=data['public_id']).first()
+        except:
+            return jsonify({'error': 'Token is invalid!'}), 401
+
+        return func(current_user, *args, **kwargs)
+
     return decorated
 
 
+# Routes
 @app.route('/users', methods=['GET'])
-def get_all_users():
+@token_required
+def get_all_users(current_user):
+
+    if not current_user.admin:
+        return jsonify({'error': 'Non-admin cannot perform that function!'}), 403
+
     users = User.query.all()
     output = []
 
@@ -73,7 +86,8 @@ def get_all_users():
 
 
 @app.route('/user/<public_id>', methods=['GET'])
-def get_one_user(public_id):
+@token_required
+def get_one_user(current_user, public_id):
 
     # Check if user exists
     user = User.query.filter_by(public_id=public_id).first()
@@ -101,7 +115,8 @@ def create_user():
 
 
 @app.route('/user/<public_id>', methods=['PUT'])
-def promote_user(public_id):
+@token_required
+def promote_user(current_user, public_id):
 
     # Check if user exists
     user = User.query.filter_by(public_id=public_id).first()
@@ -115,7 +130,8 @@ def promote_user(public_id):
 
 
 @app.route('/user/<public_id>', methods=['DELETE'])
-def delete_user(public_id):
+@token_required
+def delete_user(current_user, public_id):
 
     # Check if user exists
     user = User.query.filter_by(public_id=public_id).first()
@@ -151,7 +167,7 @@ def login():
         return make_response(jsonify({'error': 'could not verify'}), 401, {'WWW-Authenticate': 'Basic realm="Login required!"'})
 
     # generate token
-    exp_date = str(datetime.datetime.utcnow() + datetime.timedelta(minutes=30))
+    exp_date = datetime.datetime.now() + datetime.timedelta(minutes=30)
     token = jwt.encode({'public_id': user.public_id,
                         'exp': exp_date}, app.config['SECRET_KEY'])
 
