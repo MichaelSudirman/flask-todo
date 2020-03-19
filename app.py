@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify, make_response
 from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS, cross_origin
 import uuid
 from werkzeug.security import generate_password_hash, check_password_hash
 import os
@@ -10,7 +9,6 @@ from functools import wraps
 
 # Init app
 app = Flask(__name__)
-CORS(app)
 basedir = os.path.abspath(os.path.dirname(__file__))
 app.config['SECRET_KEY'] = 'thisissecret'
 
