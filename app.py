@@ -2,9 +2,9 @@ from flask import Flask, request, jsonify, make_response
 from flask_cors import CORS, cross_origin
 from os import path, getenv
 from functools import wraps
-from .api.user import user
-from .api.todo import todo
-from .models.database import db
+from app.api.user import user
+from app.api.todo import todo
+from app.models.database import db
 
 # Init app
 app = Flask(__name__)
