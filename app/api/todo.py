@@ -25,7 +25,7 @@ def get_all_todos(current_user):
         todo_data['complete'] = todo.complete
         output.append(todo_data)
 
-    return jsonify({'todos': output})
+    return jsonify({'payload': output})
 
 
 @todo.route('/todo/<todo_id>', methods=['GET'])

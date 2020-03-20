@@ -1,2 +1,2 @@
 # ToDo App
-Exploring SQLAlchemy, and JSON Web Authentication in Flask RESTFul API framework
+Flask application that explores manual packaging, SQLAlchemy, Blueprint, and JWT authentication
