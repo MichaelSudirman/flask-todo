@@ -23,6 +23,3 @@ db.init_app(app)
 # Initi blueprint routes
 app.register_blueprint(user)
 app.register_blueprint(todo)
-
-if __name__ == "__main__":
-    app.run()

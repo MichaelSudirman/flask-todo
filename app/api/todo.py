@@ -7,6 +7,10 @@ from ..util.util import token_required
 
 todo = Blueprint('todo', __name__)
 # Routes
+@todo.route('/', methods=['GET'])
+def index():
+    return jsonify({'payload':'Hello World'})
+
 @todo.route('/todos', methods=['GET'])
 @token_required
 def get_all_todos(current_user):
