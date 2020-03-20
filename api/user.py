@@ -1,40 +1,15 @@
-from flask import Flask, request, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS, cross_origin
-import uuid
+from flask import request, jsonify, make_response
+from uuid import uuid4
 from werkzeug.security import generate_password_hash, check_password_hash
 from os import getenv
-import jwt
-import datetime
-from functools import wraps
+from jwt import encode
 from flask import Blueprint
-from ..models import User, Todo
-from ..database import db
+from ..models.models import User
+from ..models.database import db
 from ..util.util import token_required
+import datetime
 
 user = Blueprint('user', __name__)
-# Decorator function
-def token_required(func):
-    @wraps(func)
-    def decorated(*args, **kwargs):
-        token = None
-
-        if 'x-access-token' in request.headers:
-            token = request.headers['x-access-token']
-
-        if not token:
-            return jsonify({'error': 'Token is missing!'}), 401
-
-        try:
-            data = jwt.decode(token, getenv('SECRET_KEY'))
-            current_user = User.query.filter_by(
-                public_id=data['public_id']).first()
-        except:
-            return jsonify({'error': 'Token is invalid!'}), 401
-
-        return func(current_user, *args, **kwargs)
-
-    return decorated
 
 # Routes
 @user.route('/users', methods=['GET'])
@@ -78,7 +53,7 @@ def get_one_user(current_user, public_id):
 def create_user():
     data = request.get_json()
     hashed_password = generate_password_hash(data['password'], method='sha256')
-    new_user = User(public_id=str(uuid.uuid4()),
+    new_user = User(public_id=str(uuid4()),
                     name=data['name'], password=hashed_password, admin=False)
     db.session.add(new_user)
     db.session.commit()
@@ -136,7 +111,7 @@ def login():
 
     # generate token
     exp_date = datetime.datetime.now() + datetime.timedelta(minutes=30)
-    token = jwt.encode({'public_id': user.public_id,
+    token = encode({'public_id': user.public_id,
                         'exp': exp_date}, getenv('SECRET_KEY'))
 
     return jsonify({'token': token.decode('UTF-8')})

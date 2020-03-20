@@ -1,22 +1,12 @@
 from flask import Flask, request, jsonify, make_response
-from flask_sqlalchemy import SQLAlchemy
-from flask_cors import CORS, cross_origin
-import uuid
-from werkzeug.security import generate_password_hash, check_password_hash
 from os import getenv
-import jwt
-import datetime
-from functools import wraps
 from flask import Blueprint
-from ..models import User, Todo
-from ..database import db
+from ..models.models import Todo
+from ..models.database import db
 from ..util.util import token_required
 
 todo = Blueprint('todo', __name__)
-
-
-
-
+# Routes
 @todo.route('/todos', methods=['GET'])
 @token_required
 def get_all_todos(current_user):
